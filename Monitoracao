@@ -1,0 +1,39 @@
+#Real-time Monitoring Script:
+
+sudo nano /usr/local/bin/security-monitor.sh
+
+****************************************************************************
+
+#!/bin/bash
+echo "=== REAL-TIME SECURITY MONITOR ==="
+echo "Last updated: $(date)"
+echo ""
+
+# Fail2Ban status
+echo "--- FAIL2BAN STATUS ---"
+sudo fail2ban-client status sshd | grep -E "(Status|Banned IP|Total banned)"
+
+# Recent attacks
+echo ""
+echo "--- RECENT SSH ATTACKS (last 10) ---"
+sudo grep "Failed password\|Invalid user" /var/log/auth.log | tail -15
+
+# Current connections
+echo ""
+echo "--- CURRENT SSH CONNECTIONS ---"
+sudo netstat -tunp | grep :22 | grep ESTABLISHED | grep :2225
+
+# System load
+echo ""
+echo "--- SYSTEM STATUS ---"
+echo "Load: $(uptime | awk -F'load average:' '{print $2}')"
+echo "Memory: $(free -h | grep Mem | awk '{print $3"/"$2}')"
+echo "Disk: $(df -h / | awk 'NR==2 {print $5}')"
+
+
+
+**************************************************************
+
+sudo chmod +x /usr/local/bin/security-monitor.sh
+
+watch -n 10 /usr/local/bin/security-monitor.sh
