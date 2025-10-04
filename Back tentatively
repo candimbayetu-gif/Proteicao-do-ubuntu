@@ -1,0 +1,126 @@
+Ubuntu Security Checklist - Simple Explanation
+
+🔐 Basic Must-Do's
+
+1. User & Passwords
+
+```bash
+# Check who you are
+whoami
+
+# Check if you have sudo access
+sudo -l
+
+# See logged-in users
+w
+```
+
+· Use strong passwords
+· Don't use root user for daily tasks
+· Only give sudo to trusted users
+
+2. System Updates
+
+```bash
+# Update regularly
+sudo apt update
+sudo apt upgrade
+
+# Enable automatic security updates
+sudo apt install unattended-upgrades
+sudo dpkg-reconfigure unattended-upgrades
+```
+
+3. Firewall (Like a Bouncer)
+
+```bash
+# Check if firewall is on
+sudo ufw status
+
+# Turn on firewall
+sudo ufw enable
+
+# Basic rules
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+```
+
+🛡️ Important Security Checks
+
+4. SSH Security (Remote Access)
+
+```bash
+# Check SSH status
+sudo systemctl status ssh
+
+# Edit SSH config for better security
+sudo nano /etc/ssh/sshd_config
+```
+
+· Change default port (not 22)
+· Disable root login
+· Use key-based authentication
+
+5. Check Running Services
+
+```bash
+# See what's running
+sudo systemctl list-units --type=service
+
+# See what's listening on ports
+sudo netstat -tulpn
+# or
+sudo ss -tulpn
+```
+
+6. User Accounts
+
+```bash
+# See all users
+cat /etc/passwd
+
+# See who can sudo
+cat /etc/group | grep sudo
+
+# Check for empty passwords
+sudo awk -F: '($2 == "") {print}' /etc/shadow
+```
+
+🔍 Quick Security Scan
+
+Run these commands to check:
+
+```bash
+# 1. Check for updates
+apt list --upgradable
+
+# 2. Check firewall
+sudo ufw status
+
+# 3. Check failed login attempts
+sudo lastb
+
+# 4. Check successful logins
+sudo last
+
+# 5. Check suspicious processes
+ps aux | grep -E '(ssh|ftp|telnet)'
+```
+
+🚨 Red Flags to Watch For
+
+· Unknown users in sudo group
+· Services running that you don't recognize
+· Failed login attempts in logs
+· Open ports you don't need
+
+📋 Simple Action Plan
+
+1. Enable firewall ✅
+2. Run updates ✅
+3. Check user accounts ✅
+4. Review running services ✅
+5. Secure SSH (if using remote access) ✅
+
+Want me to help you run any of these checks? Just say which one!
