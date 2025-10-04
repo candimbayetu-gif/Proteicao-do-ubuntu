@@ -1,0 +1,185 @@
+🛡️ COMPLETE SECURITY MONITOR SCRIPT (Clean Version)
+
+STEP 1: Create the Script
+
+```bash
+sudo nano /usr/local/bin/security-monitor.sh
+```
+
+```bash
+#!/bin/bash
+
+echo "=== SECURITY MONITOR ==="
+echo "Last updated: $(date '+%Y-%m-%d %H:%M:%S')"
+echo ""
+
+# 1. SYSTEM HEALTH
+echo "--- SYSTEM HEALTH ---"
+echo "Load: $(uptime | awk -F'load average:' '{print $2}')"
+MEM_USED=$(free -h | grep Mem | awk '{print $3}')
+MEM_TOTAL=$(free -h | grep Mem | awk '{print $2}')
+MEM_PERCENT=$(free | grep Mem | awk '{printf("%.0f"), $3/$2 * 100.0}')
+echo "Memory: ${MEM_USED}/${MEM_TOTAL} (${MEM_PERCENT}%)"
+
+DISK_USED=$(df -h / | awk 'NR==2 {print $5}')
+echo "Disk Usage: $DISK_USED"
+
+# 2. NETWORK SECURITY
+echo ""
+echo "--- NETWORK SECURITY ---"
+echo "Listening Ports (Critical):"
+sudo ss -tulpn 2>/dev/null | grep -E ':(22|80|443|53|21|23|25|135|139|445|1433|3306|5432)' | grep LISTEN | head -10
+
+echo ""
+echo "External Connections:"
+sudo ss -tunp 2>/dev/null | grep ESTABLISHED | grep -v 127.0.0.1 | grep -v :22 | head -5
+
+# 3. SSH SECURITY
+echo ""
+echo "--- SSH SECURITY ---"
+SSH_ACTIVE=$(sudo ss -tunp 2>/dev/null | grep :22 | grep ESTABLISHED | wc -l)
+echo "Active SSH Connections: $SSH_ACTIVE"
+
+SSH_FAILED=$(sudo grep "Failed password\|authentication failure" /var/log/auth.log 2>/dev/null | grep "$(date '+%b %e %H:' --date='1 hour ago')" | wc -l)
+echo "Failed SSH (last hour): $SSH_FAILED"
+
+echo ""
+echo "Recent SSH Events:"
+sudo tail -8 /var/log/auth.log 2>/dev/null | grep -E "Failed|Invalid" | tail -3
+
+# 4. FIREWALL & SERVICES
+echo ""
+echo "--- FIREWALL & SERVICES ---"
+UFW_STATUS=$(sudo ufw status 2>/dev/null | grep "Status")
+echo "Firewall: $UFW_STATUS"
+
+echo "Services Status:"
+for service in ssh ufw fail2ban; do
+    if systemctl is-active --quiet $service 2>/dev/null; then
+        echo "  $service: ACTIVE"
+    else
+        echo "  $service: INACTIVE"
+    fi
+done
+
+# 5. USER SECURITY
+echo ""
+echo "--- USER SECURITY ---"
+echo "Logged in users:"
+who | head -3
+
+echo ""
+echo "Recent logins:"
+last -4 | head -3
+
+# 6. SECURITY CHECKS
+echo ""
+echo "--- SECURITY CHECKS ---"
+# Check if fail2ban is installed
+if ! command -v fail2ban-client &> /dev/null; then
+    echo "ALERT: Fail2Ban not installed"
+fi
+
+# Check for root SSH login
+if sudo grep -q "PermitRootLogin yes" /etc/ssh/sshd_config 2>/dev/null; then
+    echo "ALERT: Root SSH login enabled"
+fi
+
+# Check for password authentication
+if sudo grep -q "PasswordAuthentication yes" /etc/ssh/sshd_config 2>/dev/null; then
+    echo "ALERT: SSH password authentication enabled"
+fi
+
+echo ""
+echo "=== MONITORING COMPLETE ==="
+```
+
+STEP 2: Make it Executable
+
+```bash
+sudo chmod +x /usr/local/bin/security-monitor.sh
+```
+
+STEP 3: Run the Monitor
+
+```bash
+# Run once
+/usr/local/bin/security-monitor.sh
+
+# Run every 30 seconds
+watch -n 30 /usr/local/bin/security-monitor.sh
+
+# Run with color (if you change your mind)
+watch -n 30 -c /usr/local/bin/security-monitor.sh
+```
+
+STEP 4: Optional - Create Logging
+
+```bash
+# Add to crontab for periodic logging
+sudo crontab -e
+# Add this line:
+*/10 * * * * /usr/local/bin/security-monitor.sh >> /var/log/security-monitor.log
+```
+
+📊 WHAT THIS MONITORS:
+
+1. System Health
+
+· CPU load
+· Memory usage
+· Disk space
+
+2. Network Security
+
+· Open ports (especially risky ones)
+· External connections
+· Listening services
+
+3. SSH Security
+
+· Active SSH connections
+· Failed login attempts
+· Recent attack patterns
+
+4. Firewall & Services
+
+· UFW firewall status
+· Critical service status
+
+5. User Security
+
+· Currently logged in users
+· Recent login history
+
+6. Security Config
+
+· Missing security tools
+· Risky SSH settings
+
+🚨 CRITICAL ALERTS TO WATCH FOR:
+
+· High failed SSH attempts (>10/hour = possible attack)
+· Firewall inactive
+· Unexpected open ports (especially 21, 23, 25, 135, 139, 445)
+· Unknown external connections
+· Root SSH login enabled
+· Disk >90% full
+
+🔧 MANUAL SECURITY CHECKS:
+
+```bash
+# Check all listening ports
+sudo netstat -tulpn
+
+# Check kernel security
+cat /proc/sys/kernel/randomize_va_space
+
+# Check user accounts
+cat /etc/passwd | grep -E ":/bin/bash|:/bin/sh"
+
+# Check sudo privileges
+getent group sudo
+```
+
+This gives you a clean, professional security monitor without distractions!
