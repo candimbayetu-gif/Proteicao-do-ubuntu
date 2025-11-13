@@ -47,7 +47,7 @@ echo ""
 echo "Recent SSH Events:"
 sudo tail -8 /var/log/auth.log 2>/dev/null | grep -E "Failed|Invalid" | tail -3
 
-# 4. FIREWALL & SERVICES
+ 4. FIREWALL & SERVICES
 echo ""
 echo "--- FIREWALL & SERVICES ---"
 UFW_STATUS=$(sudo ufw status 2>/dev/null | grep "Status")
