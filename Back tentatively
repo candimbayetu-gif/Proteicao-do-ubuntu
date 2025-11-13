@@ -123,4 +123,3 @@ ps aux | grep -E '(ssh|ftp|telnet)'
 4. Review running services ✅
 5. Secure SSH (if using remote access) ✅
 
-Want me to help you run any of these checks? Just say which one!
