@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Proteção do Ubuntu Security Monitor Periodically
+Requires=security-monitor.service
+
+[Timer]
+Unit=security-monitor.service
+OnBootSec=1min
+OnUnitActiveSec=10min
+
+[Install]
+WantedBy=timers.target
