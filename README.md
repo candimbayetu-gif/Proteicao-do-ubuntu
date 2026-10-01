@@ -18,7 +18,7 @@ git clone https://github.com/candimbayetu-gif/Proteicao-do-ubuntu.git && cd Prot
 
 Once installed via `setup.sh`, you can run these commands from anywhere in your terminal:
 
-* **`sec-monitor`**: Run real-time security monitor (system health, sudo activity, recon detection, reverse shells).
+* **`sec-monitor`**: Run the **Live SOC Dashboard** — continuous real-time security monitor refreshing every 5 seconds (system health, recon detection, sudo activity, reverse shells, active threat alerts with color-coded status; press `Ctrl + C` to exit).
 * **`sec-remediate`**: Run automated remediation & lockdown (secures sudoers, enforces UFW, kills service shells, secures SSH).
 * **`sec-incident`**: Generate a timestamped forensic snapshot report for incident response and score justification (`/var/log/security-incidents/`).
 
