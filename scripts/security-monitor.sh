@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# 🛡️ ADVANCED COMPETITION SECURITY MONITOR - LIVE SOC DASHBOARD (v2.1)
+# 🛡️ ADVANCED COMPETITION SECURITY MONITOR - LIVE SOC DASHBOARD (v2.3)
 # ==============================================================================
 
 REFRESH_INTERVAL=5
@@ -13,12 +13,16 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
+# Initial clear to clean screen once on start
+clear
+
 while true; do
-    clear
+    # Move cursor to top-left (flicker-free refresh)
+    printf "\033[H"
     
     # SOC Header
     echo "================================================================================"
-    echo " 🛡️  PROTEÇÃO DO UBUNTU - LIVE SOC MONITOR & THREAT DETECTION"
+    echo " 🛡️  PROTEÇÃO DO UBUNTU - LIVE SOC MONITOR & ADVANCED THREAT DETECTION"
     echo " Refresh Interval: ${REFRESH_INTERVAL}s | Press Ctrl+C to Exit"
     echo " Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
     echo "================================================================================"
@@ -34,20 +38,40 @@ while true; do
     echo -e " Memory Usage: \033[1;33m${MEM_USED}/${MEM_TOTAL} (${MEM_PERCENT}%)\033[0m"
     echo -e " Root Disk Usage: \033[1;33m$DISK_USED\033[0m"
 
-    # 2. RECONNAISSANCE & ENUMERATION DETECTION
-    echo -e "\n\033[1;36m--- 🕵️ RECONNAISSANCE & ENUMERATION ALERTS ---"
-    ENUM_PROCS=$(ps aux | grep -iE '(linpeas|linenum|pspy|nmap|netcat|nc\.traditional|socat)' | grep -v grep)
-    if [ -n "$ENUM_PROCS" ]; then
-        echo -e " \033[1;31m🚨 ALERT: Suspicious Enumeration Tool Running!\033[0m"
-        echo "$ENUM_PROCS"
+    # 2. ACTIVE SESSIONS & ACCESS VECTORS
+    echo -e "\n\033[1;36m--- 👥 ACTIVE ACCESS SESSIONS (SSH, PuTTY, TTY) ---"
+    ACTIVE_USERS=$(who 2>/dev/null)
+    SESSION_COUNT=$(echo "$ACTIVE_USERS" | grep -v '^$' | wc -l)
+    echo -e " Active Sessions Count: \033[1;33m$SESSION_COUNT\033[0m"
+    if [ -n "$ACTIVE_USERS" ]; then
+        echo "$ACTIVE_USERS" | awk '{print "   User: " $1 " | Terminal: " $2 " | From: " ($5 ? $5 : "local")}'
     else
-        echo -e " \033[1;32m✓ No common enumeration tools detected in process list.\033[0m"
+        echo -e "   No active sessions detected."
     fi
 
-    INVALID_USERS=$(sudo grep "Invalid user" /var/log/auth.log 2>/dev/null | grep "$(date '+%b %e %H:' --date='1 hour ago')" | wc -l)
-    echo -e " SSH Invalid User Attempts (last hour): \033[1;33m$INVALID_USERS\033[0m"
+    # 3. BRUTE-FORCE & AUTHENTICATION ATTACKS
+    echo -e "\n\033[1;36m--- 🚨 BRUTE-FORCE & AUTHENTICATION ATTACKS ---"
+    FAILED_LOGINS=$(sudo grep -E "Failed password|Invalid user" /var/log/auth.log 2>/dev/null | tail -5)
+    FAILED_COUNT=$(sudo grep -E "Failed password|Invalid user" /var/log/auth.log 2>/dev/null | wc -l)
+    echo -e " Total Failed Auth Attempts (Log): \033[1;31m$FAILED_COUNT\033[0m"
+    if [ -n "$FAILED_LOGINS" ]; then
+        echo -e " \033[1;31m⚠️ Recent Attack Signatures (Auth Log):\033[0m"
+        sudo grep -E "Failed password|Invalid user" /var/log/auth.log 2>/dev/null | tail -3 | awk '{print "   " $1 " " $2 " " $3 " - " $(NF-3) " " $(NF-2) " " $(NF-1) " " $NF}'
+    else
+        echo -e " \033[1;32m✓ No recent brute-force attack signatures detected in auth log.\033[0m"
+    fi
 
-    # 3. PRIVILEGE ESCALATION & SUDO MONITOR
+    # 4. RECONNAISSANCE & ENUMERATION TOOLS
+    echo -e "\n\033[1;36m--- 🕵️ RECONNAISSANCE & ENUMERATION TOOLS ---"
+    ENUM_PROCS=$(ps aux | grep -iE '(linpeas|linenum|pspy|nmap|netcat|nc\.traditional|socat|gobuster|dirb|hydra|sqlmap)' | grep -v grep)
+    if [ -n "$ENUM_PROCS" ]; then
+        echo -e " \033[1;31m🚨 ALERT: Enumeration / Attack Tool Running!\033[0m"
+        echo "$ENUM_PROCS" | awk '{print "   PID: " $2 " | User: " $1 " | Cmd: " $11 " " $12}'
+    else
+        echo -e " \033[1;32m✓ No common enumeration or scanning tools in process list.\033[0m"
+    fi
+
+    # 5. PRIVILEGE ESCALATION & SUDO MONITOR
     echo -e "\n\033[1;36m--- 🚨 PRIVILEGE ESCALATION & SUDO MONITOR ---"
     echo "Recent Sudo Activity:"
     sudo grep "COMMAND=" /var/log/auth.log 2>/dev/null | tail -3 | awk -F': ' '{print "   " $NF}'
@@ -59,31 +83,31 @@ while true; do
         echo -e " \033[1;32m✓ /etc/sudoers permissions secure ($SUDOERS_PERM).\033[0m"
     fi
 
-    # 4. EXPLOITATION & ABNORMAL PROCESSES
+    # 6. EXPLOITATION & ABNORMAL SHELLS
     echo -e "\n\033[1;36m--- 💥 EXPLOITATION & ABNORMAL SHELLS ---"
-    SUSP_SHELLS=$(ps aux | grep -E '(www-data|nginx|apache|mysql|postgres|nobody)' | grep -E '(bash|sh|zsh|nc|python|perl)')
+    SUSP_SHELLS=$(ps aux | grep -E '(www-data|nginx|apache|mysql|postgres|nobody)' | grep -E '(bash|sh|zsh|nc|python|perl|ruby)')
     if [ -n "$SUSP_SHELLS" ]; then
-        echo -e " \033[1;31m🚨 ALERT: Service account running a shell (Possible RCE)!\033[0m"
+        echo -e " \033[1;31m🚨 ALERT: Service account running a shell (Possible RCE / Exploit)!\033[0m"
         echo "$SUSP_SHELLS"
     else
         echo -e " \033[1;32m✓ No suspicious service account shells detected.\033[0m"
     fi
 
-    # 5. NETWORK & REVERSE SHELLS
-    echo -e "\n\033[1;36m--- 🌐 NETWORK & CONNECTIONS ---"
-    echo "Listening Ports (Critical):"
-    sudo ss -tulpn 2>/dev/null | grep -E ':(22|80|443|53|21|23|25|3306|5432)' | grep LISTEN | head -6 | awk '{print "   " $0}'
+    # 7. NETWORK, BACKDOORS & REVERSE SHELLS
+    echo -e "\n\033[1;36m--- 🌐 NETWORK, BACKDOORS & REVERSE SHELLS ---"
+    echo "Listening Ports (Active Services):"
+    sudo ss -tulpn 2>/dev/null | grep LISTEN | head -6 | awk '{print "   Port/Service: " $5 " | Process: " $7}'
 
     EXT_CONNS=$(sudo ss -tunp 2>/dev/null | grep ESTABLISHED | grep -v 127.0.0.1 | grep -v :22)
     if [ -n "$EXT_CONNS" ]; then
-        echo -e " \033[1;33m⚠️ External Established Connections (Check for Reverse Shells):\033[0m"
+        echo -e " \033[1;33m⚠️ Suspicious External Established Connections (Possible Reverse Shell/C2):\033[0m"
         echo "$EXT_CONNS" | head -5 | awk '{print "   " $0}'
     else
-        echo -e " \033[1;32m✓ No suspicious external established connections.\033[0m"
+        echo -e " \033[1;32m✓ No unauthorized external connections detected.\033[0m"
     fi
 
-    # 6. FIREWALL & SERVICES
-    echo -e "\n\033[1;36m--- 🔥 FIREWALL & SERVICES ---"
+    # 8. FIREWALL & SERVICES
+    echo -e "\n\033[1;36m--- 🔥 FIREWALL & DEFENSE SERVICES ---"
     UFW_STATUS=$(sudo ufw status 2>/dev/null | grep "Status")
     echo -e " Firewall: \033[1;33m$UFW_STATUS\033[0m"
 
@@ -95,7 +119,7 @@ while true; do
         fi
     done
 
-    # 7. PERSISTENCE & STAGING
+    # 9. PERSISTENCE & STAGING
     echo -e "\n\033[1;36m--- 🔍 PERSISTENCE & STAGING ---"
     TMP_FILES=$(find /tmp /dev/shm -type f 2>/dev/null | wc -l)
     echo -e " Files in /tmp & /dev/shm: \033[1;33m$TMP_FILES\033[0m"
