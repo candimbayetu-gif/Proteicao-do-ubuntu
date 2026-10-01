@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# 🛡️ ENTERPRISE SOC SECURITY MONITOR - LIVE DASHBOARD (v3.0)
+# 🛡️ ENTERPRISE SOC SECURITY MONITOR - LIVE DASHBOARD (v3.1)
 # ==============================================================================
 
 REFRESH_INTERVAL=20
@@ -17,8 +17,8 @@ trap cleanup SIGINT SIGTERM
 clear
 
 while true; do
-    # Move cursor to top-left (flicker-free refresh)
-    printf "\033[H"
+    # Move cursor to top-left and clear from cursor down (prevents old ghosting/overlapping text)
+    printf "\033[H\033[J"
     
     # Calculate Threat Metrics for Summary Banner
     ACTIVE_SESSIONS=$(who 2>/dev/null | wc -l)
@@ -28,7 +28,7 @@ while true; do
     
     # Professional Header Banner
     echo "┌──────────────────────────────────────────────────────────────────────────────┐"
-    echo "│ 🛡️  ENTERPRISE SOC - UBUNTU THREAT DETECTION & MONITORING ENGINE (v3.0)     │"
+    echo "│ 🛡️  ENTERPRISE SOC - UBUNTU THREAT DETECTION & MONITORING ENGINE (v3.1)     │"
     echo "│ Refresh: ${REFRESH_INTERVAL}s | Mode: Live Continuous | Press [Ctrl+C] to Exit             │"
     echo "│ Timestamp: $(date '+%Y-%m-%d %H:%M:%S')                                          │"
     echo "├──────────────────────────────────────────────────────────────────────────────┤"
