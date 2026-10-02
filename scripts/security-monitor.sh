@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # ==============================================================================
-# 🛡️ ENTERPRISE SOC SECURITY MONITOR - LIVE DASHBOARD (v3.3)
-# Real Kernel Audit (auditd) & UFW Firewall Block Integration
+# 🛡️ ENTERPRISE SOC SECURITY MONITOR - LIVE DASHBOARD (v3.4)
+# Real Kernel Audit (auditd), UFW Firewall Block, & Live Attacker Tracking
 # ==============================================================================
 
 REFRESH_INTERVAL=20
@@ -30,7 +30,7 @@ while true; do
     
     # Professional Header Banner
     echo "┌──────────────────────────────────────────────────────────────────────────────┐"
-    echo "│ 🛡️  ENTERPRISE SOC - KERNEL AUDIT & THREAT INTELLIGENCE (v3.3)              │"
+    echo "│ 🛡️  ENTERPRISE SOC - KERNEL AUDIT & THREAT INTELLIGENCE (v3.4)              │"
     echo "│ Refresh: ${REFRESH_INTERVAL}s | Mode: Kernel/Audit Active | Press [Ctrl+C] to Exit   │"
     echo "│ Timestamp: $(date '+%Y-%m-%d %H:%M:%S')                                          │"
     echo "├──────────────────────────────────────────────────────────────────────────────┤"
@@ -73,7 +73,6 @@ while true; do
     echo -e "\n\033[1;34m[+] KERNEL AUDIT ENGINE (auditd) & FILE INTEGRITY\033[0m"
     if systemctl is-active --quiet auditd 2>/dev/null; then
         echo -e "  • Kernel Audit Daemon (auditd): \033[1;32mACTIVE (Kernel-level monitoring)\033[0m"
-        # Check recent audit events for critical file access/modification
         RECENT_AUDIT=$(sudo ausearch -m PATH -ts recent 2>/dev/null | grep -E '(sudoers|passwd|shadow)' | tail -2)
         if [ -n "$RECENT_AUDIT" ]; then
             echo -e "    -> \033[1;31mALERT: Critical system file modification detected by kernel audit!\033[0m"
@@ -84,16 +83,27 @@ while true; do
         echo -e "  • Kernel Audit Daemon (auditd): \033[1;33mINACTIVE (Tip: sudo apt install auditd)\033[0m"
     fi
 
-    # 4. UFW FIREWALL BLOCKED PACKETS (Kernel Log Analysis)
-    echo -e "\n\033[1;34m[+] FIREWALL BLOCKED PACKETS (UFW / Kern.log)\033[0m"
-    if [ "$BLOCKED_PACKETS" -gt 0 ]; then
-        echo -e "  • \033[1;33mUFW Firewall Blocked Connections ($BLOCKED_PACKETS total):\033[0m"
-        RECENT_BLOCKS=$(sudo grep -i "UFW BLOCK" /var/log/kern.log 2>/dev/null | tail -3)
-        if [ -n "$RECENT_BLOCKS" ]; then
-            echo "$RECENT_BLOCKS" | awk '{print "    -> " $1 " " $2 " " $3 " | Blocked Inbound Packet"}'
-        fi
+    # 4. LIVE ATTACKER SCANNING & AUTO-BLOCKED IPS
+    echo -e "\n\033[1;31m[+] LIVE ATTACKER SCANNING & AUTO-BLOCKED IPS\033[0m"
+    
+    # Extract scanning / probing source IPs from UFW kern.log
+    SCANNING_IPS=$(sudo grep -i "UFW BLOCK" /var/log/kern.log 2>/dev/null | grep -oP 'SRC=\K[0-9.]+' | sort | uniq -c | sort -nr | head -5)
+    if [ -n "$SCANNING_IPS" ]; then
+        echo -e "  • \033[1;33mExternal IPs Probing / Scanning Server Ports:\033[0m"
+        echo "$SCANNING_IPS" | awk '{print "    -> Scanner IP: " $2 " | Probe Hits: " $1}'
     else
-        echo -e "  • \033[1;32mNo blocked inbound packets recorded in kernel logs recently.\033[0m"
+        echo -e "  • \033[1;32mNo external port scanning detected in kernel logs.\033[0m"
+    fi
+
+    # Extract Fail2ban Banned IPs if available
+    if command -v fail2ban-client &>/dev/null && systemctl is-active --quiet fail2ban; then
+        BANNED_IPS=$(sudo fail2ban-client status sshd 2>/dev/null | grep "Banned IP list" | sed 's/.*Banned IP list:\s*//')
+        if [ -n "$BANNED_IPS" ] && [ "$BANNED_IPS" != "" ]; then
+            echo -e "  • \033[1;31m🔒 Automatically Banned IPs (Fail2Ban):\033[0m"
+            echo "    -> $BANNED_IPS"
+        else
+            echo -e "  • \033[1;32mNo IPs currently banned by Fail2Ban SSH jail.\033[0m"
+        fi
     fi
 
     # 5. ATTACKER IP INTELLIGENCE & BRUTE-FORCE MONITORING
