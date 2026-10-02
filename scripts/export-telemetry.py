@@ -7,10 +7,21 @@ Inspired by Master Ollama's Architectural Audit: Advanced Log Collection & Parsi
 import json
 import os
 import subprocess
+import sys
 from datetime import datetime, timezone
 
 TELEMETRY_DIR = "/var/log/security-incidents"
 TELEMETRY_FILE = os.path.join(TELEMETRY_DIR, "telemetry.json")
+
+def ensure_root():
+    if os.geteuid() != 0:
+        print("[-] sec-telemetry requires root privileges to read system logs and write telemetry.")
+        print("[*] Elevating privileges via sudo...")
+        try:
+            os.execvp("sudo", ["sudo", "python3"] + sys.argv)
+        except Exception as e:
+            print(f"[-] Failed to auto-elevate: {e}")
+            sys.exit(1)
 
 def run_cmd(cmd):
     try:
@@ -36,15 +47,15 @@ def collect_telemetry():
             })
 
     # UFW Firewall blocks from kern.log
-    ufw_blocks = run_cmd("sudo grep -i 'UFW BLOCK' /var/log/kern.log 2>/dev/null | tail -n 10")
-    block_count = int(run_cmd("sudo grep -i 'UFW BLOCK' /var/log/kern.log 2>/dev/null | wc -l") or "0")
+    ufw_blocks = run_cmd("grep -i 'UFW BLOCK' /var/log/kern.log 2>/dev/null | tail -n 10")
+    block_count = int(run_cmd("grep -i 'UFW BLOCK' /var/log/kern.log 2>/dev/null | wc -l") or "0")
 
     # Failed SSH login attempts
-    failed_ssh = run_cmd("sudo grep -E 'Failed password|Invalid user' /var/log/auth.log 2>/dev/null | tail -n 10")
-    failed_count = int(run_cmd("sudo grep -E 'Failed password|Invalid user' /var/log/auth.log 2>/dev/null | wc -l") or "0")
+    failed_ssh = run_cmd("grep -E 'Failed password|Invalid user' /var/log/auth.log 2>/dev/null | tail -n 10")
+    failed_count = int(run_cmd("grep -E 'Failed password|Invalid user' /var/log/auth.log 2>/dev/null | wc -l") or "0")
 
     # Running recon tools check
-    recon_procs = run_cmd("ps aux | grep -iE '(linpeas|linenum|pspy|nmap|netcat|socat|hydra|sqlmap)' | grep -v grep")
+    recon_procs = run_cmd("ps aux | grep -iE '(linpeas|linenum|pspy|nmap|netcat|nc\.traditional|socat|hydra|sqlmap)' | grep -v grep")
     recon_detected = bool(recon_procs)
 
     payload = {
@@ -68,6 +79,7 @@ def collect_telemetry():
     return payload
 
 def main():
+    ensure_root()
     os.makedirs(TELEMETRY_DIR, exist_ok=True)
     payload = collect_telemetry()
     with open(TELEMETRY_FILE, "w") as f:

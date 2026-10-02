@@ -3,8 +3,16 @@
 # 🛡️ INCIDENT RESPONSE & FORENSIC SNAPSHOT TOOL
 # ==============================================================================
 
+# Auto-elevate to root if not already root
+if [ "$EUID" -ne 0 ]; then
+    echo "[-] sec-incident requires root privileges for system-wide forensics and log access."
+    echo "[*] Elevating privileges via sudo..."
+    exec sudo "$0" "$@"
+fi
+
 REPORT_DIR="/var/log/security-incidents"
 mkdir -p "$REPORT_DIR"
+chmod 700 "$REPORT_DIR"
 TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
 REPORT_FILE="$REPORT_DIR/incident_report_$TIMESTAMP.txt"
 
