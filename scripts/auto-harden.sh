@@ -25,12 +25,23 @@ echo "[+] UFW Firewall is active and enforced (Business ports 80/443, SSH, and P
 
 # 2. Automated Snort NIDS Installation & Setup
 echo "[*] Installing and configuring Snort NIDS..."
+DEFAULT_IFACE=$(ip route show default 2>/dev/null | awk '{print $5}' | head -n1)
+if [ -z "$DEFAULT_IFACE" ]; then
+    DEFAULT_IFACE=$(ls /sys/class/net 2>/dev/null | grep -E '^(eth|en|wl)' | head -n1)
+fi
+[ -z "$DEFAULT_IFACE" ] && DEFAULT_IFACE="eth0"
+
+echo "snort snort/interface string $DEFAULT_IFACE" | debconf-set-selections 2>/dev/null || true
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq && apt-get install -y -qq snort >/dev/null 2>&1 || echo "[-] Snort package installation skipped or non-interactive."
 mkdir -p /var/log/snort
 touch /var/log/snort/alert.fast
 chmod 755 /var/log/snort
-echo "[+] Snort NIDS logging directory initialized."
+if systemctl list-unit-files | grep -q snort; then
+    systemctl enable snort >/dev/null 2>&1 || true
+    systemctl start snort >/dev/null 2>&1 || true
+fi
+echo "[+] Snort NIDS configured and started on interface $DEFAULT_IFACE."
 
 # 3. Automated Monit Installation & Configuration
 echo "[*] Installing and configuring Monit daemon..."
@@ -38,6 +49,7 @@ apt-get install -y -qq monit >/dev/null 2>&1
 
 MONIT_CONF="/etc/monit/monitrc"
 if [ -f "$MONIT_CONF" ]; then
+    chmod 600 "$MONIT_CONF"
     if ! grep -q "set daemon 60" "$MONIT_CONF"; then
         echo "set daemon 60" >> "$MONIT_CONF"
     fi
@@ -56,9 +68,11 @@ check process fail2ban with pidfile /var/run/fail2ban/fail2ban.pid
     if 3 restarts within 5 cycles then timeout
 EOF
     fi
-    systemctl restart monit >/dev/null 2>&1 || true
+    chmod 600 "$MONIT_CONF"
+    systemctl daemon-reload >/dev/null 2>&1 || true
     systemctl enable monit >/dev/null 2>&1 || true
-    echo "[+] Monit daemon configured and running successfully."
+    systemctl restart monit >/dev/null 2>&1 || true
+    echo "[+] Monit daemon configured, enabled, and running successfully."
 fi
 
 # 4. Sysctl Kernel Hardening
