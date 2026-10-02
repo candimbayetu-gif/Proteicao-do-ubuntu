@@ -15,7 +15,7 @@ TELEMETRY_FILE = os.path.join(TELEMETRY_DIR, "telemetry.json")
 
 def ensure_root():
     if os.geteuid() != 0:
-        print("[-] sec-telemetry requires root privileges to read system logs and write telemetry.")
+        print("[-] telemetry requires root privileges to read system logs and write telemetry.")
         print("[*] Elevating privileges via sudo...")
         try:
             os.execvp("sudo", ["sudo", "python3"] + sys.argv)
@@ -54,6 +54,10 @@ def collect_telemetry():
     failed_ssh = run_cmd("grep -E 'Failed password|Invalid user' /var/log/auth.log 2>/dev/null | tail -n 10")
     failed_count = int(run_cmd("grep -E 'Failed password|Invalid user' /var/log/auth.log 2>/dev/null | wc -l") or "0")
 
+    # Snort NIDS alerts parsing
+    snort_log = "/var/log/snort/alert.fast" if os.path.exists("/var/log/snort/alert.fast") else "/var/log/snort/alert"
+    snort_alerts = run_cmd(f"tail -n 10 {snort_log} 2>/dev/null") if os.path.exists(snort_log) else ""
+
     # Running recon tools check
     recon_procs = run_cmd("ps aux | grep -iE '(linpeas|linenum|pspy|nmap|netcat|nc\.traditional|socat|hydra|sqlmap)' | grep -v grep")
     recon_detected = bool(recon_procs)
@@ -72,6 +76,7 @@ def collect_telemetry():
             "recent_ufw_blocks": ufw_blocks.splitlines(),
             "failed_auth_count": failed_count,
             "recent_failed_auth": failed_ssh.splitlines(),
+            "snort_alerts": snort_alerts.splitlines() if snort_alerts else [],
             "recon_tools_detected": recon_detected,
             "recon_processes": recon_procs.splitlines() if recon_procs else []
         }

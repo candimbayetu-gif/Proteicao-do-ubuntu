@@ -106,7 +106,25 @@ while true; do
         fi
     fi
 
-    # 5. ATTACKER IP INTELLIGENCE & BRUTE-FORCE MONITORING
+    # 5. SNORT NIDS INTRUSION DETECTION ALERTS
+    echo -e "\n\033[1;31m[+] SNORT NIDS - NETWORK INTRUSION ALERTS\033[0m"
+    SNORT_LOG="/var/log/snort/alert.fast"
+    if [ ! -f "$SNORT_LOG" ]; then
+        SNORT_LOG="/var/log/snort/alert"
+    fi
+    if [ -f "$SNORT_LOG" ]; then
+        SNORT_ALERTS=$(sudo tail -n 5 "$SNORT_LOG" 2>/dev/null)
+        if [ -n "$SNORT_ALERTS" ]; then
+            echo -e "  • \033[1;31mALERT: Snort NIDS detected network intrusion signatures!\033[0m"
+            echo "$SNORT_ALERTS" | awk '{print "    -> [Snort] " $0}'
+        else
+            echo -e "  • \033[1;32mNo recent Snort network intrusion alerts.\033[0m"
+        fi
+    else
+        echo -e "  • \033[1;33mSnort log not found (Tip: sudo apt install snort)\033[0m"
+    fi
+
+    # 6. ATTACKER IP INTELLIGENCE & BRUTE-FORCE MONITORING
     echo -e "\n\033[1;34m[+] ATTACKER IP INTELLIGENCE & BRUTE-FORCE MONITORING\033[0m"
     if [ "$FAILED_COUNT" -gt 0 ]; then
         echo -e "  • \033[1;31mALERT: $FAILED_COUNT brute-force / failed authentication attempts!\033[0m"
