@@ -1,6 +1,7 @@
 #!/bin/bash
 # ==============================================================================
 # 🚀 PROTEÇÃO DO UBUNTU - ONE-CLICK SETUP & INSTALLER
+# "Simplicity is the ultimate sophistication." - Steve Jobs Mindset
 # ==============================================================================
 
 set -e
@@ -21,25 +22,36 @@ else
     cd "$INSTALL_DIR"
 fi
 
-# 2. Make scripts executable and install to system PATH
-echo "[*] Installing scripts to /usr/local/bin/..."
-sudo cp scripts/*.sh /usr/local/bin/
-sudo chmod +x /usr/local/bin/*.sh
+# 2. Make scripts executable and install symlinks without prefixes
+echo "[*] Installing clean, prefix-free commands to /usr/local/bin/..."
+sudo cp scripts/security-monitor.sh /usr/local/bin/security-monitor
+sudo cp scripts/auto-remediate.sh /usr/local/bin/auto-remediate
+sudo cp scripts/incident-response.sh /usr/local/bin/incident-response
+sudo cp scripts/export-telemetry.py /usr/local/bin/export-telemetry
+sudo cp scripts/auto-harden.sh /usr/local/bin/auto-harden
 
-# Rename without .sh for easier CLI usage (optional convenience)
-sudo ln -sf /usr/local/bin/security-monitor.sh /usr/local/bin/sec-monitor
-sudo ln -sf /usr/local/bin/auto-remediate.sh /usr/local/bin/sec-remediate
-sudo ln -sf /usr/local/bin/incident-response.sh /usr/local/bin/sec-incident
-sudo ln -sf /usr/local/bin/export-telemetry.py /usr/local/bin/sec-telemetry
+sudo chmod +x /usr/local/bin/security-monitor
+sudo chmod +x /usr/local/bin/auto-remediate
+sudo chmod +x /usr/local/bin/incident-response
+sudo chmod +x /usr/local/bin/export-telemetry
+sudo chmod +x /usr/local/bin/auto-harden
+
+# Create clean short symlinks (monitor, remediate, incident, telemetry, harden)
+sudo ln -sf /usr/local/bin/security-monitor /usr/local/bin/monitor
+sudo ln -sf /usr/local/bin/auto-remediate /usr/local/bin/remediate
+sudo ln -sf /usr/local/bin/incident-response /usr/local/bin/incident
+sudo ln -sf /usr/local/bin/export-telemetry /usr/local/bin/telemetry
+sudo ln -sf /usr/local/bin/auto-harden /usr/local/bin/harden
 
 echo ""
 echo "=== ✅ INSTALLATION COMPLETE! ==="
-echo "You can now run your tools from anywhere using:"
-echo "  - sec-monitor    (Run real-time security monitor)"
-echo "  - sec-remediate  (Run automated remediation/lockdown)"
-echo "  - sec-incident   (Generate forensic incident report)"
-echo "  - sec-telemetry  (Export structured JSON telemetry for SIEM)"
+echo "You can now run your tools cleanly from anywhere:"
+echo "  - monitor      (Run real-time SOC security monitor)"
+echo "  - harden       (Automate Monit, UFW firewall & kernel hardening)"
+echo "  - remediate    (Run automated remediation/lockdown)"
+echo "  - incident     (Generate forensic incident report)"
+echo "  - telemetry    (Export structured JSON telemetry for SIEM)"
 echo ""
 echo "Running security monitor now for the first time..."
 echo "--------------------------------------------------"
-sec-monitor
+monitor
