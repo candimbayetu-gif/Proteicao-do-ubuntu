@@ -13,12 +13,15 @@ fi
 echo "=== 🛡️ Starting Automated Server Hardening & NIDS Provisioning ==="
 
 # 1. Firewall Enforcement (Fixing empty iptables / inactive UFW rules)
-echo "[*] Configuring and enforcing UFW firewall rules..."
+echo "[*] Configuring and enforcing UFW firewall rules (allowing SSH, HTTP, HTTPS, and ICMP ping)..."
 ufw --force default deny incoming
 ufw --force default allow outgoing
 ufw allow ssh
+ufw allow 80/tcp comment "Allow HTTP web traffic"
+ufw allow 443/tcp comment "Allow HTTPS secure web traffic"
+ufw allow proto icmp comment "Allow ICMP ping"
 ufw --force enable
-echo "[+] UFW Firewall is active and enforced."
+echo "[+] UFW Firewall is active and enforced (Business ports 80/443, SSH, and Ping allowed)."
 
 # 2. Automated Snort NIDS Installation & Setup
 echo "[*] Installing and configuring Snort NIDS..."

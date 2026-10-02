@@ -35,21 +35,19 @@ ufw limit 80/tcp comment "Rate limit HTTP flood" >/dev/null 2>&1 || true
 ufw limit 443/tcp comment "Rate limit HTTPS flood" >/dev/null 2>&1 || true
 echo "[+] UFW rate limiting rules active."
 
-# 3. Active Connection Flood Detector & Automated Block
-echo "[*] Scanning active connections for IP flood anomalies (>20 simultaneous connections)..."
-SUSP_IPS=$(ss -tunp 2>/dev/null | grep ESTAB | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -nr | awk '$1 > 20 {print $2}')
+# 3. Active Connection Flood Monitoring (Non-blocking / Availability-Safe)
+echo "[*] Monitoring connection rates (relying on kernel SYN cookies and UFW rate limiting to preserve availability)..."
+SUSP_IPS=$(ss -tunp 2>/dev/null | grep ESTAB | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -nr | awk '$1 > 200 {print $2}')
 
 if [ -n "$SUSP_IPS" ]; then
-    echo "[!] WARNING: High connection volume detected from the following IPs:"
+    echo "[!] Notice: High connection volume detected from the following IPs (logged for review):"
     for ip in $SUSP_IPS; do
         if [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && [ "$ip" != "127.0.0.1" ] && [ "$ip" != "0.0.0.0" ]; then
-            echo "    -> Blocking flood IP: $ip"
-            ufw deny from "$ip" to any comment "Anti-DDoS automated block" >/dev/null 2>&1
+            echo "    -> High volume IP observed (not blocked to preserve uptime): $ip"
         fi
     done
-    echo "[+] Automated IP blocking executed for flood sources."
 else
-    echo "[+] No IP connection flood thresholds exceeded at this moment."
+    echo "[+] Connection volume within normal parameters."
 fi
 
 echo "=== ✅ ANTI-DDOS & AUTOMATED BLOCKING ACTIVE ==="

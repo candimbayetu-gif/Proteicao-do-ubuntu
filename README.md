@@ -28,9 +28,10 @@ shield     # (or 'defend', 'proteicao')
 
 * **`shield`** (or **`defend`**, **`proteicao`**): Runs all defense layers and seamlessly transitions into the live SOC dashboard.
 * **`monitor`**: Launch the **Executive SOC Security Dashboard** — real-time continuous security monitor refreshing every 20 seconds.
-* **`harden`**: Run automated server hardening (Monit, UFW, sysctl kernel hardening).
-* **`block`** (or **`antiddos`**): Run automated **Anti-DDoS & IP Flood Blocking** (SYN cookies, UFW rate limits, IP dropping).
+* **`harden`**: Run automated server hardening (Monit, UFW allowing HTTP/HTTPS/SSH, sysctl kernel hardening).
+* **`block`** (or **`antiddos`**): Run automated **Anti-DDoS & IP Flood Rate-Limiting** (SYN cookies, UFW rate limits).
 * **`remediate`**: Run automated remediation & lockdown (sudoers, daemon shells, SSH).
+* **`honeypot`** (or **`pot`**): Run the lightweight **Decoy Honeypot Trap** (listening on ports 2222 and 8080 to log unauthorized probes safely).
 * **`incident`**: Generate a timestamped forensic snapshot report (`/var/log/security-incidents/`).
 * **`telemetry`**: Export structured JSON security telemetry for SIEM.
 

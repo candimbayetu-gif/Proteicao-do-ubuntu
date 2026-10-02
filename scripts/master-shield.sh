@@ -25,6 +25,7 @@ if [ -f "$SCRIPT_DIR/security-monitor.sh" ]; then
     cp "$SCRIPT_DIR"/auto-harden.sh /usr/local/bin/auto-harden
     cp "$SCRIPT_DIR"/anti-ddos.sh /usr/local/bin/anti-ddos
     cp "$SCRIPT_DIR"/master-shield.sh /usr/local/bin/master-shield
+    cp "$SCRIPT_DIR"/honeypot.sh /usr/local/bin/honeypot
 
     chmod +x /usr/local/bin/security-monitor
     chmod +x /usr/local/bin/auto-remediate
@@ -33,6 +34,7 @@ if [ -f "$SCRIPT_DIR/security-monitor.sh" ]; then
     chmod +x /usr/local/bin/auto-harden
     chmod +x /usr/local/bin/anti-ddos
     chmod +x /usr/local/bin/master-shield
+    chmod +x /usr/local/bin/honeypot
 
     ln -sf /usr/local/bin/security-monitor /usr/local/bin/monitor
     ln -sf /usr/local/bin/auto-remediate /usr/local/bin/remediate
@@ -44,22 +46,27 @@ if [ -f "$SCRIPT_DIR/security-monitor.sh" ]; then
     ln -sf /usr/local/bin/master-shield /usr/local/bin/shield
     ln -sf /usr/local/bin/master-shield /usr/local/bin/defend
     ln -sf /usr/local/bin/master-shield /usr/local/bin/proteicao
+    ln -sf /usr/local/bin/honeypot /usr/local/bin/pot
 fi
 
 # 1. Run Automated Hardening (Monit + Snort + Firewall + Sysctl)
-echo -e "\n\033[1;34m[Phase 1/4] Running Automated Hardening (Monit, Snort & Kernel)...\033[0m"
+echo -e "\n\033[1;34m[Phase 1/5] Running Automated Hardening (Monit, Snort & Kernel)...\033[0m"
 auto-harden 2>/dev/null || bash "$SCRIPT_DIR/auto-harden.sh"
 
 # 2. Run Anti-DDoS & Automated Blocking
-echo -e "\n\033[1;34m[Phase 2/4] Executing Anti-DDoS & IP Flood Blocking...\033[0m"
+echo -e "\n\033[1;34m[Phase 2/5] Executing Anti-DDoS & IP Flood Rate-Limiting...\033[0m"
 block 2>/dev/null || bash "$SCRIPT_DIR/anti-ddos.sh"
 
 # 3. Run Automated Remediation & Lockdown
-echo -e "\n\033[1;34m[Phase 3/4] Enforcing Remediation & Privilege Lockdown...\033[0m"
+echo -e "\n\033[1;34m[Phase 3/5] Enforcing Remediation & Privilege Lockdown...\033[0m"
 remediate 2>/dev/null || bash "$SCRIPT_DIR/auto-remediate.sh"
 
-# 4. Seamless Transition into Live SOC Monitor
-echo -e "\n\033[1;32m[Phase 4/4] All defense layers active. Launching Live SOC Monitor...\033[0m"
+# 4. Activate Decoy Honeypot Trap
+echo -e "\n\033[1;34m[Phase 4/5] Activating Decoy Honeypot Trap (Ports 2222, 8080)...\033[0m"
+honeypot 2>/dev/null || bash "$SCRIPT_DIR/honeypot.sh"
+
+# 5. Seamless Transition into Live SOC Monitor
+echo -e "\n\033[1;32m[Phase 5/5] All defense layers active. Launching Live SOC Monitor...\033[0m"
 sleep 2
 
 exec security-monitor
