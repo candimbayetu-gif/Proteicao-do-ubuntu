@@ -1,6 +1,6 @@
 # 🛡️ Proteção do Ubuntu (Competition & Security Edition)
 
-A lightweight, practical toolkit of scripts, detection monitors, automated remediation, and forensic tools for hardening, securing, and monitoring Ubuntu servers.
+*“Simplicity is the ultimate sophistication.”* — A lightweight, practical, and insanely intuitive toolkit for hardening, securing, and monitoring Ubuntu servers.
 
 ---
 
@@ -14,22 +14,27 @@ git clone https://github.com/candimbayetu-gif/Proteicao-do-ubuntu.git && cd Prot
 
 ---
 
-## 🚀 CLI Shortcut Commands (Installed Globally)
+## 🚀 Clean, Prefix-Free CLI Commands (Installed Globally)
 
-Once installed via `setup.sh`, you can run these commands from anywhere in your terminal:
+Once installed, you can run these clean, single-word commands from anywhere in your terminal:
 
-* **`sec-monitor`**: Run the **Live SOC Dashboard (v2.3)** — flicker-free continuous real-time security monitor refreshing every 5 seconds (system health, active access sessions, brute-force & failed auth attack detection, enumeration tool scans like Hydra/Nmap/LinPEAS, RCE/shell detection, reverse shell & C2 port monitoring; press `Ctrl + C` to exit).
-* **`sec-remediate`**: Run automated remediation & lockdown (secures sudoers, enforces UFW, kills service shells, secures SSH).
-* **`sec-incident`**: Generate a timestamped forensic snapshot report for incident response and score justification (`/var/log/security-incidents/`).
+* **`monitor`**: Launch the **Executive SOC Security Dashboard** — real-time continuous security monitor refreshing every 20 seconds (system health, Executive Anomaly Verdict, active access sessions, brute-force attack intelligence, recon tool detection, and RCE shells; press `Ctrl + C` to exit).
+* **`harden`**: Run automated server hardening — automatically configures **Monit**, enforces active **UFW** firewall rules, and applies sysctl kernel hardening.
+* **`remediate`**: Run automated remediation & lockdown — secures sudoers, daemon shells, and enforces SSH hardening.
+* **`incident`**: Generate a timestamped forensic snapshot report for incident response (`/var/log/security-incidents/`) with auto-sudo elevation.
+* **`telemetry`**: Export structured JSON security telemetry for SIEM and compliance dashboard integration.
 
 ---
 
 ## 📂 Repository Structure
 
-* `setup.sh`: One-click master installer and updater script.
-* `scripts/security-monitor.sh`: Core monitoring engine.
-* `scripts/auto-remediate.sh`: Automated defense script.
-* `scripts/incident-response.sh`: Forensic report generator.
+* `setup.sh`: One-click master installer and symlink creator.
+* `scripts/security-monitor.sh`: Core live SOC monitoring engine (`monitor`).
+* `scripts/auto-harden.sh`: Automated Monit & kernel hardening (`harden`).
+* `scripts/auto-remediate.sh`: Automated defense & lockdown (`remediate`).
+* `scripts/incident-response.sh`: Forensic report generator (`incident`).
+* `scripts/export-telemetry.py`: Structured JSON SIEM exporter (`telemetry`).
+* `docs/soc-architecture.md`: Enterprise SOC architecture & compliance guide.
 * `docs/security-checklist.md`: Essential security and hardening checklist.
 
 ---
