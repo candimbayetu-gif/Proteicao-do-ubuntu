@@ -37,6 +37,18 @@ while true; do
     printf "│ Active Sessions: %-2s │ Failed Auth: %-3s │ UFW Blocks: %-3s │ RCE Shells: %-2s │\n" "$ACTIVE_SESSIONS" "$FAILED_COUNT" "$BLOCKED_PACKETS" "$SUSP_SHELL_COUNT"
     echo "└──────────────────────────────────────────────────────────────────────────────┘"
 
+    # EXECUTIVE ANOMALY & STATE CHANGE OVERVIEW
+    echo -e "\n\033[1;36m[⚡] EXECUTIVE ANOMALY & STATE CHANGE OVERVIEW\033[0m"
+    ANOMALY_STATUS="\033[1;32mSECURE (No active anomalies)\033[0m"
+    if [ "$ENUM_COUNT" -gt 0 ] || [ "$SUSP_SHELL_COUNT" -gt 0 ]; then
+        ANOMALY_STATUS="\033[1;31m🚨 CRITICAL ANOMALY DETECTED (Recon/RCE Shells Active)\033[0m"
+    elif [ "$FAILED_COUNT" -gt 10 ]; then
+        ANOMALY_STATUS="\033[1;33m⚠️ WARNING (Elevated Brute-Force Activity)\033[0m"
+    fi
+    echo -e "  • System State Verdict : $ANOMALY_STATUS"
+    echo -e "  • Active Anomalies     : Recon Tools ($ENUM_COUNT) | RCE Shells ($SUSP_SHELL_COUNT) | Failed Logins ($FAILED_COUNT)"
+    echo -e "  • Telemetry Output     : Saved to /var/log/security-incidents/telemetry.json"
+
     # 1. SYSTEM HEALTH
     echo -e "\n\033[1;34m[+] SYSTEM HEALTH & INTEGRITY\033[0m"
     LOAD=$(uptime | awk -F'load average:' '{print $2}')
