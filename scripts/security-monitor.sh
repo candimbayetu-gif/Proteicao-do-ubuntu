@@ -17,6 +17,13 @@ trap cleanup SIGINT SIGTERM
 # Initial clear to clean screen once on start
 clear
 
+# Terminate any other running instances of security-monitor to prevent ghost/overlapping sessions
+for pid in $(pgrep -f "security-monitor.sh"); do
+    if [ "$pid" != "$$" ]; then
+        kill -9 "$pid" 2>/dev/null || true
+    fi
+done
+
 while true; do
     # Move cursor to top-left and clear from cursor down (flicker-free, no ghosting)
     printf "\033[H\033[J"
