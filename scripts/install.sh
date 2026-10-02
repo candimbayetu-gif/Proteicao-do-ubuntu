@@ -16,6 +16,7 @@ cp "$SCRIPT_DIR"/incident-response.sh /usr/local/bin/incident-response
 cp "$SCRIPT_DIR"/export-telemetry.py /usr/local/bin/export-telemetry
 cp "$SCRIPT_DIR"/auto-harden.sh /usr/local/bin/auto-harden
 cp "$SCRIPT_DIR"/anti-ddos.sh /usr/local/bin/anti-ddos
+cp "$SCRIPT_DIR"/master-shield.sh /usr/local/bin/master-shield
 
 chmod +x /usr/local/bin/security-monitor
 chmod +x /usr/local/bin/auto-remediate
@@ -23,6 +24,7 @@ chmod +x /usr/local/bin/incident-response
 chmod +x /usr/local/bin/export-telemetry
 chmod +x /usr/local/bin/auto-harden
 chmod +x /usr/local/bin/anti-ddos
+chmod +x /usr/local/bin/master-shield
 
 # Create clean short symlinks
 ln -sf /usr/local/bin/security-monitor /usr/local/bin/monitor
@@ -32,6 +34,9 @@ ln -sf /usr/local/bin/export-telemetry /usr/local/bin/telemetry
 ln -sf /usr/local/bin/auto-harden /usr/local/bin/harden
 ln -sf /usr/local/bin/anti-ddos /usr/local/bin/block
 ln -sf /usr/local/bin/anti-ddos /usr/local/bin/antiddos
+ln -sf /usr/local/bin/master-shield /usr/local/bin/shield
+ln -sf /usr/local/bin/master-shield /usr/local/bin/defend
+ln -sf /usr/local/bin/master-shield /usr/local/bin/proteicao
 
 # 2. Setup log directories
 echo "[*] Creating incident response log directory (/var/log/security-incidents)..."
@@ -49,10 +54,12 @@ if [ -f "$SCRIPT_DIR/security-monitor.service" ] && [ -f "$SCRIPT_DIR/security-m
 fi
 
 echo "=== ✅ Installation Complete! ==="
-echo "Commands available:"
+echo "All-in-One Master Command:"
+echo "  - shield (or defend, proteicao) -> Runs hardening, anti-DDoS, lockdown, and launches live monitor!"
+echo "Individual Commands:"
 echo "  - monitor"
 echo "  - harden"
-echo "  - block (or antiddos)"
+echo "  - block"
 echo "  - remediate"
 echo "  - incident"
 echo "  - telemetry"

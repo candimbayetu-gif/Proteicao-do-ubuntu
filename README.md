@@ -1,6 +1,6 @@
 # 🛡️ Proteção do Ubuntu (Competition & Security Edition)
 
-*“Simplicity is the ultimate sophistication.”* — A lightweight, practical, and insanely intuitive toolkit for hardening, securing, and monitoring Ubuntu servers.
+*“One command. Total defense. Zero friction.”* — A lightweight, practical, and insanely intuitive toolkit for hardening, securing, and monitoring Ubuntu servers.
 
 ---
 
@@ -14,22 +14,32 @@ git clone https://github.com/candimbayetu-gif/Proteicao-do-ubuntu.git && cd Prot
 
 ---
 
-## 🚀 Clean, Prefix-Free CLI Commands (Installed Globally)
+## 🌟 All-in-One Master Defense Command
 
-Once installed, you can run these clean, single-word commands from anywhere in your terminal:
+Instead of running tools separately, you can execute the entire defense suite (hardening + anti-DDoS + remediation + live SOC monitoring) in one fluid motion:
 
-* **`monitor`**: Launch the **Executive SOC Security Dashboard** — real-time continuous security monitor refreshing every 20 seconds (system health, Executive Anomaly Verdict, active access sessions, brute-force attack intelligence, recon tool detection, and RCE shells; press `Ctrl + C` to exit).
-* **`harden`**: Run automated server hardening — automatically configures **Monit**, enforces active **UFW** firewall rules, and applies sysctl kernel hardening.
-* **`block`** (or **`antiddos`**): Run automated **Anti-DDoS & IP Flood Blocking** — applies kernel SYN-flood protection, UFW connection rate limiting, and automated dropping of high-volume attacking IPs.
-* **`remediate`**: Run automated remediation & lockdown — secures sudoers, daemon shells, and enforces SSH hardening.
-* **`incident`**: Generate a timestamped forensic snapshot report for incident response (`/var/log/security-incidents/`) with auto-sudo elevation.
-* **`telemetry`**: Export structured JSON security telemetry for SIEM and compliance dashboard integration.
+```bash
+shield     # (or 'defend', 'proteicao')
+```
+
+---
+
+## 🚀 Clean, Prefix-Free Individual CLI Commands
+
+* **`shield`** (or **`defend`**, **`proteicao`**): Runs all defense layers and seamlessly transitions into the live SOC dashboard.
+* **`monitor`**: Launch the **Executive SOC Security Dashboard** — real-time continuous security monitor refreshing every 20 seconds.
+* **`harden`**: Run automated server hardening (Monit, UFW, sysctl kernel hardening).
+* **`block`** (or **`antiddos`**): Run automated **Anti-DDoS & IP Flood Blocking** (SYN cookies, UFW rate limits, IP dropping).
+* **`remediate`**: Run automated remediation & lockdown (sudoers, daemon shells, SSH).
+* **`incident`**: Generate a timestamped forensic snapshot report (`/var/log/security-incidents/`).
+* **`telemetry`**: Export structured JSON security telemetry for SIEM.
 
 ---
 
 ## 📂 Repository Structure
 
 * `setup.sh`: One-click master installer and symlink creator.
+* `scripts/master-shield.sh`: Unified master defense runner (`shield`).
 * `scripts/security-monitor.sh`: Core live SOC monitoring engine (`monitor`).
 * `scripts/auto-harden.sh`: Automated Monit & kernel hardening (`harden`).
 * `scripts/anti-ddos.sh`: Automated anti-DDoS and IP flood blocking (`block`).
@@ -37,7 +47,6 @@ Once installed, you can run these clean, single-word commands from anywhere in y
 * `scripts/incident-response.sh`: Forensic report generator (`incident`).
 * `scripts/export-telemetry.py`: Structured JSON SIEM exporter (`telemetry`).
 * `docs/soc-architecture.md`: Enterprise SOC architecture & compliance guide.
-* `docs/security-checklist.md`: Essential security and hardening checklist.
 
 ---
 
