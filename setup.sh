@@ -30,6 +30,7 @@ sudo chmod +x /usr/local/bin/*.sh
 sudo ln -sf /usr/local/bin/security-monitor.sh /usr/local/bin/sec-monitor
 sudo ln -sf /usr/local/bin/auto-remediate.sh /usr/local/bin/sec-remediate
 sudo ln -sf /usr/local/bin/incident-response.sh /usr/local/bin/sec-incident
+sudo ln -sf /usr/local/bin/export-telemetry.py /usr/local/bin/sec-telemetry
 
 echo ""
 echo "=== ✅ INSTALLATION COMPLETE! ==="
@@ -37,6 +38,7 @@ echo "You can now run your tools from anywhere using:"
 echo "  - sec-monitor    (Run real-time security monitor)"
 echo "  - sec-remediate  (Run automated remediation/lockdown)"
 echo "  - sec-incident   (Generate forensic incident report)"
+echo "  - sec-telemetry  (Export structured JSON telemetry for SIEM)"
 echo ""
 echo "Running security monitor now for the first time..."
 echo "--------------------------------------------------"

@@ -10,12 +10,14 @@ echo "=== Installing Proteção do Ubuntu Toolkit ==="
 # 1. Copy scripts to /usr/local/bin
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "[*] Installing scripts to /usr/local/bin..."
-cp "$SCRIPT_DIR"/security-monitor.sh /usr/local/bin/
-cp "$SCRIPT_DIR"/auto-remediate.sh /usr/local/bin/
-cp "$SCRIPT_DIR"/incident-response.sh /usr/local/bin/
-chmod +x /usr/local/bin/security-monitor.sh
-chmod +x /usr/local/bin/auto-remediate.sh
-chmod +x /usr/local/bin/incident-response.sh
+cp "$SCRIPT_DIR"/security-monitor.sh /usr/local/bin/sec-monitor
+cp "$SCRIPT_DIR"/auto-remediate.sh /usr/local/bin/sec-remediate
+cp "$SCRIPT_DIR"/incident-response.sh /usr/local/bin/sec-incident
+cp "$SCRIPT_DIR"/export-telemetry.py /usr/local/bin/sec-telemetry
+chmod +x /usr/local/bin/sec-monitor
+chmod +x /usr/local/bin/sec-remediate
+chmod +x /usr/local/bin/sec-incident
+chmod +x /usr/local/bin/sec-telemetry
 
 # 2. Setup log directories
 echo "[*] Creating incident response log directory (/var/log/security-incidents)..."
