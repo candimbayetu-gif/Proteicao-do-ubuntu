@@ -16,6 +16,14 @@ HONEYPOT_LOG="$HONEYPOT_DIR/honeypot.log"
 
 echo "=== 🍯 ACTIVATING MULTI-PORT DECOY HONEYPOT ==="
 
+# Allow decoy ports in UFW if UFW is active
+if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
+    echo "[*] Configuring UFW rules for decoy honeypot ports..."
+    for port in 21 23 2222 3306 6379 8080; do
+        ufw allow "$port/tcp" comment "Honeypot decoy trap port" >/dev/null 2>&1 || true
+    done
+fi
+
 touch "$HONEYPOT_LOG"
 chmod 644 "$HONEYPOT_LOG"
 
